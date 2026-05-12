@@ -1,98 +1,106 @@
 <?= $this->extend('layouts/default') ?>
 
 <?= $this->section('content') ?>
+<div class="app-wrapper">
 
-<div class="page-section">
-    <div class="section-head">
-      <h2>Créneaux disponibles</h2>
-      <span class="count">8 créneaux trouvés</span>
+  <aside class="sidebar">
+    <div class="sidebar-section">Menu</div>
+    <ul class="sidebar-nav">
+      <li><a href="/client/dashboard" class="active"><i class="bi bi-grid-1x2-fill"></i> Tableau de bord</a></li>
+      <li><a href="/creneaux"><i class="bi bi-calendar3"></i> Voir les créneaux</a></li>
+      <li><a href="/client/reservations"><i class="bi bi-bookmark-check-fill"></i> Mes réservations</a></li>
+      <li><a href="/profil"><i class="bi bi-person-fill"></i> Mon profil</a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="avatar"><?= substr($nom_utilisateur, 0, 2) ?></div>
+        <div class="user-info">
+          <div class="name"><?= $nom_utilisateur ?></div>
+          <div class="role">Client</div>
+        </div>
+        <a href="/deconnexion" style="margin-left:auto;color:rgba(255,255,255,0.3);font-size:1.1rem;"><i
+            class="bi bi-box-arrow-right"></i></a>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar">
+      <span class="topbar-title">Tableau de bord</span>
     </div>
 
-    <!-- Filtres -->
-    <div class="filter-bar">
-      <button class="filter-pill active">Tous</button>
-      <button class="filter-pill"><i class="bi bi-people-fill"></i> Cours collectifs</button>
-      <button class="filter-pill"><i class="bi bi-door-open-fill"></i> Salles</button>
-      <button class="filter-pill"><i class="bi bi-dribbble"></i> Terrains</button>
-    </div>
-
-    <!-- Grille créneaux -->
-    <div class="creneaux-grid">
-
-      <!-- Créneau 1 — disponible -->
-      <div class="creneau-card">
-        <div class="creneau-header">
-          <span class="creneau-type type-cours"><i class="bi bi-people-fill"></i> Cours</span>
-          <span style="font-size:0.75rem;color:var(--muted);">Lun 16 juin</span>
+    <div class="page-content">
+      <div class="metrics-row">
+        <div class="metric-card">
+          <div class="metric-icon yellow"><i class="bi bi-hourglass-split"></i></div>
+          <div class="metric-value"><?= $stats['attente'] ?></div>
+          <div class="metric-label">En attente</div>
         </div>
-        <p class="creneau-title">Yoga Détente</p>
-        <div class="creneau-meta">
-          <div class="meta-row"><i class="bi bi-clock"></i> 08h00 — 09h30</div>
-          <div class="meta-row"><i class="bi bi-geo-alt"></i> Salle Zen · 2e étage</div>
+        <div class="metric-card">
+          <div class="metric-icon green"><i class="bi bi-check-circle-fill"></i></div>
+          <div class="metric-value"><?= $stats['confirmee'] ?></div>
+          <div class="metric-label">Confirmées</div>
         </div>
-        <div>
-          <div class="places-bar"><div class="places-fill" style="width:40%"></div></div>
-          <div class="places-label">6 places restantes sur 10</div>
+        <div class="metric-card">
+          <div class="metric-icon red"><i class="bi bi-x-circle-fill"></i></div>
+          <div class="metric-value"><?= $stats['annulee'] ?></div>
+          <div class="metric-label">Annulées</div>
         </div>
-        <a href="#" class="btn-reserver">Réserver ce créneau</a>
       </div>
 
-      <!-- Créneau 2 — complet -->
-      <div class="creneau-card full">
-        <div class="creneau-header">
-          <span class="creneau-type type-cours"><i class="bi bi-people-fill"></i> Cours</span>
-          <span style="font-size:0.75rem;color:var(--muted);">Lun 16 juin</span>
+      <div class="data-card">
+        <div class="data-card-header">
+          <h3>Mes prochaines réservations</h3>
         </div>
-        <p class="creneau-title">CrossFit Intensif</p>
-        <div class="creneau-meta">
-          <div class="meta-row"><i class="bi bi-clock"></i> 18h00 — 19h30</div>
-          <div class="meta-row"><i class="bi bi-geo-alt"></i> Salle Cross · RDC</div>
-        </div>
-        <div>
-          <div class="places-bar"><div class="places-fill" style="width:100%;background:var(--muted)"></div></div>
-          <div class="places-label">Complet — 0 place restante</div>
-        </div>
-        <button class="btn-reserver disabled" disabled>Complet</button>
+        <table class="table-custom">
+          <thead>
+            <tr>
+              <th>Créneau</th>
+              <th>Date</th>
+              <th>Statut</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php if (empty($reservations)): ?>
+              <tr>
+                <td colspan="4" class="text-center p-4 text-muted">Vous n'avez pas encore de réservations.</td>
+              </tr>
+            <?php else: ?>
+              <?php foreach ($reservations as $res): ?>
+                <tr>
+                  <td class="td-name"><?= $res['ressource_nom'] ?></td>
+                  <td class="td-muted">
+                    <?= date('d/m/Y', strtotime($res['date_debut'])) ?>
+                    <small>(<?= date('H:i', strtotime($res['date_debut'])) ?> –
+                      <?= date('H:i', strtotime($res['date_fin'])) ?>)</small>
+                  </td>
+                  <td>
+                    <?php
+                    $statusClass = [
+                      'en attente' => 's-attente',
+                      'confirmée' => 's-confirmee',
+                      'annulée' => 's-annulee',
+                      'refusée' => 's-refusee'
+                    ];
+                    ?>
+                    <span class="badge-statut <?= $statusClass[$res['statut']] ?>"><?= $res['statut'] ?></span>
+                  </td>
+                  <td>
+                    <?php if ($res['statut'] == 'en attente'): ?>
+                      <a href="/client/annuler/<?= $res['id'] ?>" class="btn-sm-custom btn-cancel"><i class="bi bi-x"></i>
+                        Annuler</a>
+                    <?php else: ?>
+                      <span class="text-muted">-</span>
+                    <?php endif; ?>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            <?php endif; ?>
+          </tbody>
+        </table>
       </div>
-
-      <!-- Créneau 3 — salle -->
-      <div class="creneau-card">
-        <div class="creneau-header">
-          <span class="creneau-type type-salle"><i class="bi bi-door-open-fill"></i> Salle</span>
-          <span style="font-size:0.75rem;color:var(--muted);">Mar 17 juin</span>
-        </div>
-        <p class="creneau-title">Salle de musculation</p>
-        <div class="creneau-meta">
-          <div class="meta-row"><i class="bi bi-clock"></i> 10h00 — 12h00</div>
-          <div class="meta-row"><i class="bi bi-geo-alt"></i> Bloc Muscu · RDC</div>
-        </div>
-        <div>
-          <div class="places-bar"><div class="places-fill" style="width:25%"></div></div>
-          <div class="places-label">3 places restantes sur 4</div>
-        </div>
-        <a href="#" class="btn-reserver">Réserver ce créneau</a>
-      </div>
-
-      <!-- Créneau 4 — terrain -->
-      <div class="creneau-card">
-        <div class="creneau-header">
-          <span class="creneau-type type-terrain"><i class="bi bi-dribbble"></i> Terrain</span>
-          <span style="font-size:0.75rem;color:var(--muted);">Mer 18 juin</span>
-        </div>
-        <p class="creneau-title">Terrain de squash</p>
-        <div class="creneau-meta">
-          <div class="meta-row"><i class="bi bi-clock"></i> 14h00 — 15h00</div>
-          <div class="meta-row"><i class="bi bi-geo-alt"></i> Court A</div>
-        </div>
-        <div>
-          <div class="places-bar"><div class="places-fill" style="width:50%"></div></div>
-          <div class="places-label">1 place restante sur 2</div>
-        </div>
-        <a href="#" class="btn-reserver">Réserver ce créneau</a>
-      </div>
-
     </div>
   </div>
-
-  <div class="footer-public">FitSpace &copy; 2025 — Projet CodeIgniter 4 · Tous droits <span>réservés</span></div>
-</section>
+</div>
+<?= $this->endSection() ?>

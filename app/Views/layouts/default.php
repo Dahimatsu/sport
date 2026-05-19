@@ -18,7 +18,7 @@
         <a href="/" class="brand">Fit<span>Space</span></a>
         <?php if (!url_is('connexion') && !url_is('inscription')): ?>
             <div class="nav-links">
-                <a href="/#creneaux">Nos créneaux</a>
+                <a href="/creneaux">Nos créneaux</a>
                 <?php if (session()->get('isLoggedIn')): ?>
                     <a href="<?= session()->get('role') == 'admin' ? '/admin/dashboard' : '/client/dashboard' ?>"
                         class="btn-nav-primary">Mon Espace</a>
